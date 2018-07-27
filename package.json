@@ -1,0 +1,26 @@
+{
+  "name": "vue-scout",
+  "main": "Scout.vue",
+  "version": "1.0.0",
+  "description": "A multiselect and autocomplete component for Vue",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kotAPI/vue-scout.git"
+  },
+  "keywords": [
+    "vue",
+    "scout",
+    "vuejs",
+    "multiselect",
+    "autocomplete"
+  ],
+  "author": "Pranay Kothapalli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kotAPI/vue-scout/issues"
+  },
+  "homepage": "https://github.com/kotAPI/vue-scout#readme"
+}
