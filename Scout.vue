@@ -3,21 +3,27 @@
                 <div class="vue-scout-tag-item" v-for="(x,i) in tags" :key="i">
                     <span class="tag-text-item">{{x[label]|| x}}</span>
                     <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
+                    
                 </div>
                 <input :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+
                 <div class="tag-dropdown-container" v-if="focusOn">
+
                   <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
                     <div style="padding:4px;">{{tag[label] || tag}}</div>
                     <div class="remove-element-helpertext"> (remove {{label!==undefined?label:'element'}} )</div>
                   </div>
-                  <div class="tag-no-results" v-if="filterResults().length===0">No Search Results found</div>
+                  <div  v-if="filterResults().length===0">
+                    <div class="tag-no-results">No results found</div>
+                    <div v-if="taggable===true" class="click-to-add-tag-text" @click="emitNewTag">Hit enter or click here to add new tag</div>
+                  </div>
                 </div>
             </div>
 </template>
 
 <script>
 export default {
-  props: ["options", "label", "multiple", "value", "placeholder"],
+  props: ["options", "label", "multiple", "value","placeholder","taggable"],
   data() {
     return {
       tags: [],
@@ -84,7 +90,7 @@ export default {
       if (this.removeTagIfAlreadyExistsInList(tag)) {
         return;
       }
-
+      
       if (this.multiple === false || this.multiple === undefined) {
         if (this.tags.length >= 0) {
           this.tags = [];
@@ -93,10 +99,12 @@ export default {
           this.focusOn = false;
           this.$emit("input", this.tags);
           return;
-        } else {
+        }else{
+
         }
-      } else if (this.multiple === true) {
-        console.log(tag);
+      }
+      else if (this.multiple === true) {
+        console.log(tag)
         this.tags.push(tag);
         this.focusOn = false;
         this.searchTerm = "";
@@ -106,6 +114,11 @@ export default {
     removeClickedTag(index) {
       this.tags.splice(index, 1);
     },
+    emitNewTag(){
+      this.$emit("tag",this.searchTerm)
+      this.focusOn=false;
+      this.searchTerm = "";
+    },
     addToTags() {
       if (!this.taggable) {
         return;
@@ -113,9 +126,8 @@ export default {
       if (this.searchTerm === undefined) {
         return;
       }
-      this.tags.push(this.searchTerm);
-      this.searchTerm = "";
-      this.$emit("input", this.tags);
+      this.emitNewTag()
+
     },
     handleClick(e) {
       if (document.getElementById("vue-scout").contains(e.target)) {
@@ -140,6 +152,18 @@ export default {
 
 <style>
 @import url("https://fonts.googleapis.com/css?family=Roboto");
+.click-to-add-tag-text{
+      background-color: #5bb883;
+    text-align: center;
+    padding: 10px;
+    color: white;
+    font-size: 1.1em;
+    user-select: none;
+    cursor: pointer;
+}
+.click-to-add-tag-text:hover{
+  color:black;
+}
 .tag-no-results {
   text-align: center;
   margin-top: 3px;
@@ -167,30 +191,30 @@ export default {
   max-height: 194px;
   overflow-y: scroll;
 }
-.tag-text-item {
+.tag-text-item{
   user-select: none;
-  float: left;
-  padding-right: 10px;
-  display: inline;
-  line-height: 24px;
+      float: left;
+    padding-right: 10px;
+    display: inline;
+    line-height: 24px;
 }
 .tag-dropdown:hover {
   background-color: #d4e8bc;
 }
 .tag-dropdown {
-  width: 100%;
-  background-color: white;
-  padding: 9px 0px;
-  border-bottom: 1px solid #d0d0d0;
-  cursor: pointer;
-  font-size: 0.8em;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  font-family: "Roboto", sans-serif;
-  padding-left: 15px;
-  box-sizing: border-box;
+      width: 100%;
+    background-color: white;
+    padding: 9px 0px;
+    border-bottom: 1px solid #d0d0d0;
+    cursor: pointer;
+    font-size: 0.8em;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-family: "Roboto", sans-serif;
+    padding-left: 15px;
+    box-sizing: border-box;
 }
 .vue-scout-tag-item-close-button {
   float: right;
@@ -204,16 +228,16 @@ export default {
   color: black;
 }
 .vue-scout-tag-item {
-  color: #333;
-  background-color: #f3f3f3;
-  border: 1px solid #dadada;
-  border-radius: 4px;
-  margin: 4px 1px 0 3px;
-  padding: 3px 0.55em;
-  font-family: "Roboto", sans-serif;
-  min-height: 26px;
-  font-size: 0.72em;
-  display: inline-block;
+      color: #333;
+    background-color: #f3f3f3;
+    border: 1px solid #dadada;
+    border-radius: 4px;
+    margin: 4px 1px 0 3px;
+    padding: 3px 0.55em;
+    font-family: "Roboto", sans-serif;
+    min-height: 26px;
+    font-size: 0.72em;
+    display: inline-block;
 }
 .vue-scout-container {
   width: 100%;
@@ -226,17 +250,17 @@ export default {
   background-color: white;
 }
 .vue-scout-input {
-  min-width: 16px;
-  border: 0 none;
-  background-color: transparent;
-  margin: 0;
-  outline: 0 none;
-  height: 100%;
-  font-family: "Roboto", sans-serif;
-  padding: 7px 12px;
-  min-height: 26px;
-  display: block;
-  clear: right;
+      min-width: 16px;
+    border: 0 none;
+    background-color: transparent;
+    margin: 0;
+    outline: 0 none;
+    height: 100%;
+    font-family: "Roboto", sans-serif;
+    padding: 7px 12px;
+    min-height: 26px;
+    display: block;
+    clear: right;
 }
 .tag-dropdown-container::-webkit-scrollbar {
   width: 4px;
@@ -253,3 +277,4 @@ export default {
   border-radius: 3px;
 }
 </style>
+
