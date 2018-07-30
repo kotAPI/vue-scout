@@ -1,14 +1,17 @@
 <template>
     <div class="container">
-        <div style="width:300px;background-color:white;">
-            <div class="vue-multisect-container">
-                <div class="vue-multisect-tag-item" v-for="(x,i) in tags" :key="i">
-                    <span >{{x[label]|| x}}</span>
-                    <span class="vue-multiselect-tag-item-close-button" @click="removeClickedTag(i)">x</span>
+        <div style="width:300px;background-color:white;margin:auto;">
+            <div class="vue-scout-container" id="vue-scout">
+                <div class="vue-scout-tag-item" v-for="(x,i) in tags" :key="i">
+                    <span style="width:90%;float:left;padding-right:10px;">{{x[label]|| x}}</span>
+                    <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
                 </div>
-                <input placeholder="look up here..." :size="searchTerm.length" type="text" class="vue-multisect-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+                <input placeholder="look up here..." :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
                 <div class="tag-dropdown-container" v-if="focusOn">
-                  <div v-for="(tag,index) in filterResults()" class="tag-dropdown" @click="addDropDownTagToSelectedTags(tag)" :key="index">{{tag[label] || tag}}</div>
+                  <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
+                    <div>{{tag[label] || tag}}</div>
+                    <div class="remove-element-helpertext"> (remove {{label!==undefined?label:'element'}} )</div>
+                  </div>
                   <div class="tag-no-results" v-if="filterResults().length===0">No Search Results found</div>
                 </div>
             </div>
@@ -31,12 +34,30 @@ export default {
     };
   },
   methods: {
+    addClassesToDropDownElements(index) {
+      var classes = ["tag-dropdown"];
+      /*  */
+      if (this.label === undefined) {
+        // do something
+      } else {
+        let element = this.filterResults()[index][this.label];
+
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i][this.label] === element) {
+            classes.push("vue-dropdown-remove-element");
+            break;
+          }
+        }
+      }
+      /*  */
+      return classes.join(" ");
+    },
+
     filterResults() {
       var tempArr = [];
       if (this.searchTerm.length === 0) {
         return this.options;
       }
-
       tempArr = this.options.filter(item => {
         if (item[this.label] !== undefined) {
           if (
@@ -54,7 +75,22 @@ export default {
       });
       return tempArr;
     },
+    removeTagIfAlreadyExistsInList(tag) {
+      for (var i = 0; i < this.value.length; i++) {
+        if (this.value[i][this.label] === tag[this.label]) {
+          this.value.splice(i, 1);
+          this.focusOn = false;
+          this.$emit("input", this.tags);
+          return true;
+        }
+      }
+      return false;
+    },
     addDropDownTagToSelectedTags(tag) {
+      if (this.removeTagIfAlreadyExistsInList(tag)) {
+        return;
+      }
+
       if (this.multiple === false || this.multiple === undefined) {
         if (this.tags.length > 0) {
           this.tags = [];
@@ -85,7 +121,22 @@ export default {
       this.tags.push(this.searchTerm);
       this.searchTerm = "";
       this.$emit("input", this.tags);
+    },
+    handleClick(e) {
+      if (document.getElementById("vue-scout").contains(e.target)) {
+        // Clicked in box
+      } else {
+        // Clicked outside the box
+        this.focusOn = false;
+      }
     }
+  },
+  beforeDestroy() {
+    window.removeEventListener("click", this.handleClick);
+  },
+  mounted() {
+    /* Click handler to detect clicks outside the box, so you can toggle the dropdown off */
+    window.addEventListener("click", this.handleClick);
   }
 };
 </script>
@@ -101,62 +152,82 @@ export default {
   color: #f44336;
   border-top: 1px solid #bfbfbf;
 }
+.vue-dropdown-remove-element > .remove-element-helpertext {
+  display: block;
+  padding: 3px 0px;
+  color: black;
+  font-weight: 300;
+}
+.remove-element-helpertext {
+  display: none;
+}
+.vue-dropdown-remove-element {
+  background-color: #ffbdb8 !important;
+  color: black;
+  font-weight: 500;
+  font-style: italic;
+}
 .tag-dropdown-container {
   height: auto;
   max-height: 194px;
   overflow-y: scroll;
 }
 .tag-dropdown:hover {
-  background-color: #8bc34a;
+  background-color: #d4e8bc;
 }
 .tag-dropdown {
   width: 100%;
   background-color: white;
-  padding: 4px 4px;
+  padding: 10px 12px;
   border-bottom: 1px solid #d0d0d0;
   cursor: pointer;
   font-size: 0.8em;
   user-select: none;
   font-family: "Roboto", sans-serif;
 }
-.vue-multiselect-tag-item-close-button {
-  padding-left: 4px;
-  border-left: 1px solid #5c822f;
-  margin-left: 8px;
+.vue-scout-tag-item-close-button {
+  float: right;
+  margin-right: 4px;
   display: inline-block;
-  color: #f44336;
+  color: #d04f4f;
+  font-size: 1.5em;
   cursor: pointer;
 }
-.vue-multiselect-tag-item-close-button:hover {
+.vue-scout-tag-item-close-button:hover {
   color: black;
 }
-.vue-multisect-tag-item {
-  display: inline-block;
-  border-radius: 8px;
-  border: 1px solid white;
-  padding: 4px 12px;
-  margin: 1px 2px;
-  font-size: 0.8em;
+.vue-scout-tag-item {
+  color: #333;
+  background-color: #f3f3f3;
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  margin: 4px 1px 0 3px;
+  padding: 3px 0.55em;
+  float: left;
   font-family: "Roboto", sans-serif;
-  background-color: #8bc34a;
-  color: black;
+  min-height: 26px;
+  font-size: 0.72em;
 }
-.vue-multisect-container {
+.vue-scout-container {
   width: 100%;
   min-height: 30px;
   height: auto;
+  margin: auto;
+  display: block;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  background-color: white;
 }
-.vue-multisect-input {
+.vue-scout-input {
   display: inline-block;
   min-width: 16px;
   border: 0 none;
   background-color: transparent;
-  border-bottom: 1px solid #dedede;
   margin: 0;
   outline: 0 none;
   height: 100%;
   font-family: "Roboto", sans-serif;
-  padding: 6px;
+  padding: 7px 12px;
 }
 .tag-dropdown-container::-webkit-scrollbar {
   width: 4px;
@@ -173,4 +244,3 @@ export default {
   border-radius: 3px;
 }
 </style>
-
