@@ -1,29 +1,23 @@
 <template>
-    <div class="container">
-        <div style="width:300px;background-color:white;margin:auto;">
             <div class="vue-scout-container" id="vue-scout">
                 <div class="vue-scout-tag-item" v-for="(x,i) in tags" :key="i">
-                    <span style="width:90%;float:left;padding-right:10px;">{{x[label]|| x}}</span>
+                    <span class="tag-text-item">{{x[label]|| x}}</span>
                     <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
                 </div>
-                <input placeholder="look up here..." :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+                <input :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
                 <div class="tag-dropdown-container" v-if="focusOn">
                   <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
-                    <div>{{tag[label] || tag}}</div>
+                    <div style="padding:4px;">{{tag[label] || tag}}</div>
                     <div class="remove-element-helpertext"> (remove {{label!==undefined?label:'element'}} )</div>
                   </div>
                   <div class="tag-no-results" v-if="filterResults().length===0">No Search Results found</div>
                 </div>
             </div>
-        </div>
-    </div>
 </template>
 
 <script>
-import VueScout from "vue-scout";
 export default {
-  props: ["options", "label", "multiple", "value"],
-  components: { VueScout },
+  props: ["options", "label", "multiple", "value", "placeholder"],
   data() {
     return {
       tags: [],
@@ -92,16 +86,17 @@ export default {
       }
 
       if (this.multiple === false || this.multiple === undefined) {
-        if (this.tags.length > 0) {
+        if (this.tags.length >= 0) {
           this.tags = [];
           this.tags.push(tag);
           this.searchTerm = "";
           this.focusOn = false;
           this.$emit("input", this.tags);
           return;
+        } else {
         }
-      }
-      if (this.multiple === true) {
+      } else if (this.multiple === true) {
+        console.log(tag);
         this.tags.push(tag);
         this.focusOn = false;
         this.searchTerm = "";
@@ -172,18 +167,30 @@ export default {
   max-height: 194px;
   overflow-y: scroll;
 }
+.tag-text-item {
+  user-select: none;
+  float: left;
+  padding-right: 10px;
+  display: inline;
+  line-height: 24px;
+}
 .tag-dropdown:hover {
   background-color: #d4e8bc;
 }
 .tag-dropdown {
   width: 100%;
   background-color: white;
-  padding: 10px 12px;
+  padding: 9px 0px;
   border-bottom: 1px solid #d0d0d0;
   cursor: pointer;
   font-size: 0.8em;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
   font-family: "Roboto", sans-serif;
+  padding-left: 15px;
+  box-sizing: border-box;
 }
 .vue-scout-tag-item-close-button {
   float: right;
@@ -203,10 +210,10 @@ export default {
   border-radius: 4px;
   margin: 4px 1px 0 3px;
   padding: 3px 0.55em;
-  float: left;
   font-family: "Roboto", sans-serif;
   min-height: 26px;
   font-size: 0.72em;
+  display: inline-block;
 }
 .vue-scout-container {
   width: 100%;
@@ -219,7 +226,6 @@ export default {
   background-color: white;
 }
 .vue-scout-input {
-  display: inline-block;
   min-width: 16px;
   border: 0 none;
   background-color: transparent;
@@ -228,6 +234,9 @@ export default {
   height: 100%;
   font-family: "Roboto", sans-serif;
   padding: 7px 12px;
+  min-height: 26px;
+  display: block;
+  clear: right;
 }
 .tag-dropdown-container::-webkit-scrollbar {
   width: 4px;
