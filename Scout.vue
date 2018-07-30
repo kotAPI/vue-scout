@@ -1,6 +1,6 @@
 <template>
             <div class="vue-scout-container" id="vue-scout">
-                <div class="vue-scout-tag-item" v-for="(x,i) in tags" :key="i">
+                <div class="vue-scout-tag-item" v-for="(x,i) in value" :key="i">
                     <span class="tag-text-item">{{x[label]|| x}}</span>
                     <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
                     
@@ -26,9 +26,7 @@ export default {
   props: ["options", "label", "multiple", "value","placeholder","taggable"],
   data() {
     return {
-      tags: [],
       searchTerm: "",
-      taggable: false,
       filteredTags: [],
       focusOn: false
     };
@@ -80,7 +78,7 @@ export default {
         if (this.value[i][this.label] === tag[this.label]) {
           this.value.splice(i, 1);
           this.focusOn = false;
-          this.$emit("input", this.tags);
+          this.$emit("input", this.value);
           return true;
         }
       }
@@ -92,27 +90,26 @@ export default {
       }
       
       if (this.multiple === false || this.multiple === undefined) {
-        if (this.tags.length >= 0) {
-          this.tags = [];
-          this.tags.push(tag);
+        if (this.value.length >= 0) {
+          this.value = [];
+          this.value.push(tag);
           this.searchTerm = "";
           this.focusOn = false;
-          this.$emit("input", this.tags);
+          this.$emit("input", this.value);
           return;
         }else{
 
         }
       }
       else if (this.multiple === true) {
-        console.log(tag)
-        this.tags.push(tag);
+        this.value.push(tag);
         this.focusOn = false;
         this.searchTerm = "";
-        this.$emit("input", this.tags);
+        this.$emit("input", this.value);
       }
     },
     removeClickedTag(index) {
-      this.tags.splice(index, 1);
+      this.value.splice(index, 1);
     },
     emitNewTag(){
       this.$emit("tag",this.searchTerm)
@@ -144,6 +141,7 @@ export default {
   mounted() {
     /* Click handler to detect clicks outside the box, so you can toggle the dropdown off */
     window.addEventListener("click", this.handleClick);
+    /**/
   }
 };
 </script>
@@ -157,7 +155,7 @@ export default {
     text-align: center;
     padding: 10px;
     color: white;
-    font-size: 1.1em;
+    font-size: 0.8em;
     user-select: none;
     cursor: pointer;
 }
