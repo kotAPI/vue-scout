@@ -1,11 +1,11 @@
 <template>
     <div class="vue-scout-container">
-        <div  id="vue-scout">
+        <div id="vue-scout">
         <div class="vue-scout-tag-item" v-for="(x,i) in value" :key="i">
             <span class="tag-text-item">{{x[label]|| x}}</span>
             <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
         </div>
-        <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+        <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="turnOffFocus">
 
     </div>
      <div class="tag-dropdown-container" v-if="focusOn">
@@ -38,6 +38,13 @@ export default {
     };
   },
   methods: {
+    turnOffFocus(){
+      var interval = setTimeout(()=>{
+        this.focusOn=false
+      },200)
+
+
+    },
     showInputState(){
       if(this.multiple===false){
         if(this.value.length>0){
@@ -191,22 +198,13 @@ export default {
       this.emitNewTag()
 
     },
-    handleClick(e) {
-      if (document.getElementById("vue-scout").contains(e.target)) {
-        // Clicked in box
-      } else {
-        // Clicked outside the box
-        this.focusOn = false;
-      }
-    }
+    
   },
   beforeDestroy() {
-    window.removeEventListener("click", this.handleClick);
+    
   },
   mounted() {
-    /* Click handler to detect clicks outside the box, so you can toggle the dropdown off */
-    window.addEventListener("click", this.handleClick);
-    /**/
+    
   }
 };
 </script>
