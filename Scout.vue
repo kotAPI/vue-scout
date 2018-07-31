@@ -5,7 +5,7 @@
                     <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
                     
                 </div>
-                <input :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+                <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
 
                 <div class="tag-dropdown-container" v-if="focusOn">
 
@@ -32,6 +32,14 @@ export default {
     };
   },
   methods: {
+    showInputState(){
+      if(this.multiple===false){
+        if(this.value.length>0){
+          return false
+        }
+      }
+      return true
+    },
     addClassesToDropDownElements(index) {
       var classes = ["tag-dropdown"];
       /*  */
