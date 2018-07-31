@@ -1,24 +1,29 @@
 <template>
-            <div class="vue-scout-container" id="vue-scout">
-                <div class="vue-scout-tag-item" v-for="(x,i) in value" :key="i">
-                    <span class="tag-text-item">{{x[label]|| x}}</span>
-                    <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
-                    
-                </div>
-                <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
+    <div class="vue-scout-container">
+        <div  id="vue-scout">
+        <div class="vue-scout-tag-item" v-for="(x,i) in value" :key="i">
+            <span class="tag-text-item">{{x[label]|| x}}</span>
 
-                <div class="tag-dropdown-container" v-if="focusOn">
+            <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
+            
+        </div>
+        <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
 
-                  <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
-                    <div style="padding:4px;">{{tag[label] || tag}}</div>
-                    <div class="remove-element-helpertext"> (remove {{label!==undefined?label:'element'}} )</div>
-                  </div>
-                  <div  v-if="filterResults().length===0">
-                    <div class="tag-no-results">No results found</div>
-                    <div v-if="taggable===true" class="click-to-add-tag-text" @click="emitNewTag">Hit enter or click here to add new tag</div>
-                  </div>
-                </div>
+    </div>
+     <div class="tag-dropdown-container" v-if="focusOn">
+          <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
+            <div style="padding:4px;">
+              {{tag[label] || tag}}
+              <span class="tag-select-text">Select</span>
             </div>
+          </div>
+          <div  v-if="filterResults().length===0">
+            <div class="tag-no-results">No results found</div>
+            <div v-if="taggable===true" class="click-to-add-tag-text" @click="emitNewTag">Hit enter or click here to add new tag</div>
+          </div>
+        </div>
+    </div>
+            
 </template>
 
 <script>
@@ -44,7 +49,14 @@ export default {
       var classes = ["tag-dropdown"];
       /*  */
       if (this.label === undefined) {
+        let element = this.filterResults()[index];
         // do something
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i] === element) {
+            classes.push("vue-dropdown-remove-element");
+            break;
+          }
+        }
       } else {
         let element = this.filterResults()[index][this.label];
 
@@ -82,15 +94,33 @@ export default {
       return tempArr;
     },
     removeTagIfAlreadyExistsInList(tag) {
-      for (var i = 0; i < this.value.length; i++) {
-        if (this.value[i][this.label] === tag[this.label]) {
-          this.value.splice(i, 1);
-          this.focusOn = false;
-          this.$emit("input", this.value);
-          return true;
+      if(this.label===undefined){
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i] === tag) {
+            /*So you dont modify the prop directly*, create a temporary array */
+            var arr = this.value
+            arr.splice(i, 1);
+            this.focusOn = false;
+            this.$emit("input", arr);
+            return true;
+          }
         }
+
+      }else{
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i][this.label] === tag[this.label]) {
+            /*So you dont modify the prop directly*, create a temporary array */
+            var arr = this.value
+            arr.splice(i, 1);
+            this.focusOn = false;
+            this.$emit("input", arr);
+            return true;
+          }
+        }
+        
       }
       return false;
+      
     },
     addDropDownTagToSelectedTags(tag) {
       if (this.removeTagIfAlreadyExistsInList(tag)) {
@@ -99,25 +129,29 @@ export default {
       
       if (this.multiple === false || this.multiple === undefined) {
         if (this.value.length >= 0) {
-          this.value = [];
-          this.value.push(tag);
+          var arr = [];
+          arr.push(tag);
           this.searchTerm = "";
           this.focusOn = false;
-          this.$emit("input", this.value);
+          this.$emit("input", arr);
           return;
         }else{
 
         }
       }
       else if (this.multiple === true) {
-        this.value.push(tag);
+        var arr = this.value
+        arr.push(tag);
         this.focusOn = false;
         this.searchTerm = "";
-        this.$emit("input", this.value);
+        this.$emit("input", arr);
       }
     },
     removeClickedTag(index) {
-      this.value.splice(index, 1);
+      var arr = this.value
+
+      arr.splice(index, 1);
+      this.$emit("input", arr);
     },
     emitNewTag(){
       this.$emit("tag",this.searchTerm)
@@ -158,6 +192,17 @@ export default {
 
 <style>
 @import url("https://fonts.googleapis.com/css?family=Roboto");
+.tag-select-text{
+  display: none;
+  color:black;
+  font-size:0.65em;
+  color:white;
+  padding-right:20px;
+  float:right;
+}
+.tag-dropdown:hover .tag-select-text{
+  display:inline;
+}
 .click-to-add-tag-text{
       background-color: #5bb883;
     text-align: center;
@@ -187,15 +232,20 @@ export default {
   display: none;
 }
 .vue-dropdown-remove-element {
-  background-color: #ffbdb8 !important;
-  color: black;
-  font-weight: 500;
-  font-style: italic;
+  background-color: #ec574c !important;
+    color: white;
 }
 .tag-dropdown-container {
-  height: auto;
-  max-height: 194px;
-  overflow-y: scroll;
+      height: auto;
+    max-height: 194px;
+    overflow-y: scroll;
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    border: 1px solid #dadada;
+    border-radius: 10px;
+    margin-top: 3px;
+    box-sizing: border-box;
 }
 .tag-text-item{
   user-select: none;
@@ -205,7 +255,7 @@ export default {
     line-height: 24px;
 }
 .tag-dropdown:hover {
-  background-color: #d4e8bc;
+  background-color: #78cc9c;
 }
 .tag-dropdown {
       width: 100%;
@@ -254,6 +304,7 @@ export default {
   border: 1px solid #dadada;
   border-radius: 10px;
   background-color: white;
+  position: relative;
 }
 .vue-scout-input {
       min-width: 16px;
