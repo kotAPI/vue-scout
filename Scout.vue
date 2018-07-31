@@ -3,9 +3,7 @@
         <div  id="vue-scout">
         <div class="vue-scout-tag-item" v-for="(x,i) in value" :key="i">
             <span class="tag-text-item">{{x[label]|| x}}</span>
-
             <span class="vue-scout-tag-item-close-button" @click="removeClickedTag(i)">x</span>
-            
         </div>
         <input v-if="showInputState()" :placeholder="placeholder||'Search here..'" :size="searchTerm.length" type="text" class="vue-scout-input" v-model="searchTerm" v-on:keyup.enter="addToTags" @input="filterResults" @focus="focusOn=true" @blur="focusOn=true">
 
@@ -14,7 +12,10 @@
           <div v-for="(tag,index) in filterResults()" :class="addClassesToDropDownElements(index)" @click="addDropDownTagToSelectedTags(tag)" :key="index">
             <div style="padding:4px;">
               {{tag[label] || tag}}
-              <span class="tag-select-text">Select</span>
+              <span >
+                <span v-if="checkIfTagExistsInList(tag)" class="tag-select-text"  > Deselct</span>
+                <span v-if="!checkIfTagExistsInList(tag)" class="tag-select-text"  >Select</span>
+              </span>
             </div>
           </div>
           <div  v-if="filterResults().length===0">
@@ -92,6 +93,28 @@ export default {
         }
       });
       return tempArr;
+    },
+    checkIfTagExistsInList(tag){
+      if(this.label===undefined){
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i] === tag) {
+            /*So you dont modify the prop directly*, create a temporary array */
+            
+            return true;
+          }
+        }
+
+      }else{
+        for (var i = 0; i < this.value.length; i++) {
+          if (this.value[i][this.label] === tag[this.label]) {
+            /*So you dont modify the prop directly*, create a temporary array */
+            
+            return true;
+          }
+        }
+        
+      }
+      return false;
     },
     removeTagIfAlreadyExistsInList(tag) {
       if(this.label===undefined){
