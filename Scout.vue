@@ -29,7 +29,32 @@
 
 <script>
 export default {
-  props: ["options", "label", "multiple", "value","placeholder","taggable"],
+  props:{
+    options:{
+      default:()=>[],
+      type:Array
+    },
+    label:{
+      type:String,
+      default:undefined
+    },
+    multiple:{
+      type:Boolean,
+      default:false
+    },
+    value:{
+      type:Array,
+      default:()=>[]
+    },
+    placeholder:{
+      type:String,
+      default:"Search here.."
+    },
+    taggable:{
+      type:Boolean,
+      default:false
+    }
+  },
   data() {
     return {
       searchTerm: "",
@@ -80,6 +105,10 @@ export default {
     },
 
     filterResults() {
+      // So the parent knows that the input box is being inputted
+      // useful in cases where you wanna clear out errors etc when user is retyping an error filled field etc.
+      this.emitInputEvent()
+      //
       var tempArr = [];
       if (this.searchTerm.length === 0) {
         return this.options;
@@ -183,6 +212,9 @@ export default {
       arr.splice(index, 1);
       this.$emit("input", arr);
     },
+    emitInputEvent(){
+      this.$emit("input")
+    },
     emitNewTag(){
       this.$emit("tag",this.searchTerm)
       this.focusOn=false;
@@ -270,8 +302,8 @@ export default {
 }
 .tag-text-item{
   user-select: none;
-      float: left;
-    padding-right: 10px;
+    float: left;
+    padding: 0px 9px;
     display: inline;
     line-height: 24px;
 }
@@ -305,12 +337,12 @@ export default {
   color: black;
 }
 .vue-scout-tag-item {
-      color: #333;
+        color: #333;
     background-color: #f3f3f3;
     border: 1px solid #dadada;
     border-radius: 4px;
     margin: 4px 1px 0 3px;
-    padding: 3px 0.55em;
+    padding: 1px 0.55em;
     font-family: "Roboto", sans-serif;
     min-height: 26px;
     font-size: 0.72em;
