@@ -182,11 +182,12 @@ export default {
       
     },
     addDropDownTagToSelectedTags(tag) {
+     
       if (this.removeTagIfAlreadyExistsInList(tag)) {
         return;
       }
       
-      if (this.multiple === false || this.multiple === undefined) {
+      if (this.multiple === false) {
         if (this.value.length >= 0) {
           var arr = [];
           arr.push(tag);
@@ -213,7 +214,7 @@ export default {
       this.$emit("input", arr);
     },
     emitInputEvent(){
-      this.$emit("input")
+      this.$emit("typing")
     },
     emitNewTag(){
       this.$emit("tag",this.searchTerm)
@@ -360,7 +361,7 @@ export default {
   position: relative;
 }
 .vue-scout-input {
-      min-width: 16px;
+    min-width: 16px;
     border: 0 none;
     background-color: transparent;
     margin: 0;
@@ -371,6 +372,7 @@ export default {
     min-height: 26px;
     display: block;
     clear: right;
+    width:100%;
 }
 .tag-dropdown-container::-webkit-scrollbar {
   width: 4px;

@@ -361,7 +361,7 @@ export default {
   position: relative;
 }
 .vue-scout-input {
-      min-width: 16px;
+    min-width: 16px;
     border: 0 none;
     background-color: transparent;
     margin: 0;
@@ -372,6 +372,7 @@ export default {
     min-height: 26px;
     display: block;
     clear: right;
+    width:100%;
 }
 .tag-dropdown-container::-webkit-scrollbar {
   width: 4px;
